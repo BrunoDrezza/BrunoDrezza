@@ -1,0 +1,45 @@
+name: Atualizar stats do ano
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # todo dia às 03:00 UTC
+  workflow_dispatch:      # permite rodar manualmente pela aba "Actions"
+
+permissions:
+  contents: write   # necessário para conseguir dar git push
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v5
+
+      - name: Configurar Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Instalar dependências
+        run: pip install requests
+
+      - name: Gerar SVG de stats
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: python generate_stats.py
+
+      - name: Commit e push se houver mudanças
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git status --porcelain | grep stats.svg; then
+            echo "🔄 Alterações detectadas em stats.svg, fazendo commit..."
+            git add stats.svg
+            git commit -m "🔄 Atualizar stats anuais (automático)"
+            git push
+          else
+            echo "✅ Nenhuma mudança em stats.svg, nada para commitar."
+          fi
