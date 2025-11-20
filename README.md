@@ -121,3 +121,8 @@ Each course is being organized into its own GitHub repository, with **labs** and
 
 
 ![GitHub Stats](https://github-readme-stats.vercel.app/api?username=BrunoDrezza&show_icons=true&theme=default)
+
+
+### 📊 Estatísticas (ano atual)
+
+![Stats do ano](./stats.svg)
