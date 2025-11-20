@@ -120,7 +120,7 @@ Each course is being organized into its own GitHub repository, with **labs** and
 > Feel free to open an issue or reach out if you’d like to talk about quantitative finance, data science, or potential internship opportunities. 😊
 
 
-![GitHub Stats](https://github-readme-stats.vercel.app/api?username=BrunoDrezza&show_icons=true&theme=default)
+![GitHub Stats 2025](https://github-contributions-api.jogruber.de/v4/BrunoDrezza?y=2025)
 
 
 ### 📊 Statistics

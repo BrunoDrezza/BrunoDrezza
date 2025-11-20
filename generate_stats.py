@@ -1,233 +1,173 @@
 import os
 import sys
 from datetime import datetime, timezone
+import requests
 from typing import Dict, List, Any
 
-import requests
-
-# Basic config
 USERNAME = "BrunoDrezza"
 CURRENT_YEAR = datetime.now(timezone.utc).year
 TOKEN = os.getenv("GH_TOKEN")
 
 
-def fetch_events(username: str, year: int, max_pages: int = 10, per_page: int = 100) -> List[Dict[str, Any]]:
-    """Fetch public events for the user and keep only events from the given year."""
-    if not username:
-        raise ValueError("USERNAME cannot be empty.")
-
+def fetch_events(username: str, year: int, max_pages: int = 10, per_page: int = 100):
     base_url = f"https://api.github.com/users/{username}/events/public"
     headers = {"Accept": "application/vnd.github+json"}
-
     if TOKEN:
         headers["Authorization"] = f"Bearer {TOKEN}"
 
+    events_year = []
     session = requests.Session()
-    events_for_year: List[Dict[str, Any]] = []
 
     for page in range(1, max_pages + 1):
-        resp = session.get(
+        r = session.get(
             base_url,
             params={"page": page, "per_page": per_page},
             headers=headers,
             timeout=10,
         )
 
-        if resp.status_code != 200:
-            raise RuntimeError(
-                f"GitHub API error (status {resp.status_code}): {resp.text}"
-            )
+        if r.status_code != 200:
+            raise RuntimeError(f"GitHub API error {r.status_code}: {r.text}")
 
-        page_events = resp.json()
-        if not page_events:
+        events = r.json()
+        if not events:
             break
 
-        for event in page_events:
-            created_at = event.get("created_at")
-            if not created_at:
+        for e in events:
+            created = e.get("created_at")
+            if not created:
                 continue
 
-            try:
-                dt = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
-            except ValueError:
-                continue
-
+            dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
             if dt.year == year:
-                events_for_year.append(event)
+                events_year.append(e)
             elif dt.year < year:
-                # events are returned newest -> oldest; once we hit an older year we can stop
-                return events_for_year
+                return events_year
 
-    return events_for_year
+    return events_year
 
 
 def compute_stats(events: List[Dict[str, Any]]) -> Dict[str, int]:
-    """Compute some simple stats from the events list."""
     stats = {
-        "total_events": 0,
+        "total": 0,
         "push_events": 0,
         "commits": 0,
-        "pull_requests_opened": 0,
-        "issues_opened": 0,
-        "repos_created": 0,
+        "prs": 0,
+        "issues": 0,
+        "repos": 0,
     }
 
-    for event in events:
-        stats["total_events"] += 1
-        ev_type = event.get("type")
-        payload = event.get("payload", {}) or {}
+    for e in events:
+        stats["total"] += 1
+        t = e.get("type")
+        p = e.get("payload", {}) or {}
 
-        if ev_type == "PushEvent":
+        if t == "PushEvent":
             stats["push_events"] += 1
-            commits = payload.get("commits") or []
-            stats["commits"] += len(commits)
+            stats["commits"] += len(p.get("commits") or [])
 
-        if ev_type == "PullRequestEvent" and payload.get("action") == "opened":
-            stats["pull_requests_opened"] += 1
+        if t == "PullRequestEvent" and p.get("action") == "opened":
+            stats["prs"] += 1
 
-        if ev_type == "IssuesEvent" and payload.get("action") == "opened":
-            stats["issues_opened"] += 1
+        if t == "IssuesEvent" and p.get("action") == "opened":
+            stats["issues"] += 1
 
-        if ev_type == "CreateEvent" and payload.get("ref_type") == "repository":
-            stats["repos_created"] += 1
+        if t == "CreateEvent" and p.get("ref_type") == "repository":
+            stats["repos"] += 1
 
     return stats
 
 
-def generate_svg(stats: Dict[str, int], username: str, year: int, output_path: str = "stats.svg") -> None:
-    """Generate a GitHub-style stats card as SVG."""
-    total = stats["total_events"]
+def generate_svg(stats, username, year, out="stats.svg"):
+    total = stats["total"]
     commits = stats["commits"]
     pushes = stats["push_events"]
-    prs = stats["pull_requests_opened"]
-    issues = stats["issues_opened"]
-    repos = stats["repos_created"]
+    prs = stats["prs"]
+    issues = stats["issues"]
+    repos = stats["repos"]
 
-    def fmt(n: int) -> str:
-        return f"{n:,}".replace(",", ",")
+    def fmt(n):
+        return f"{n:,}".replace(",", ".")
 
-    # simple “activity” percentage based on total events
-    max_ref = 100
-    percent = 0.0 if total <= 0 else min(total / max_ref, 1.0)
+    # Activity circle math
     radius = 38
-    circumference = 2 * 3.14159265 * radius
-    progress = circumference * (1 - percent)
+    circ = 2 * 3.14159265 * radius
+    percent = min(total / 100, 1)
+    progress = circ * (1 - percent)
 
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="495" height="180" viewBox="0 0 495 180" role="img" aria-labelledby="title desc">
-  <title id="title">{username}'s GitHub Stats {year}</title>
-  <desc id="desc">
-    GitHub public events statistics for {year}.
-  </desc>
+    # 🟦 SVG final com layout corrigido
+    svg = f"""
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="240" viewBox="0 0 520 240">
 
   <style>
-    .card {{
-      fill: #ffffff;
-      stroke: #e4e2e2;
-      stroke-width: 1;
-      rx: 6;
-      ry: 6;
-    }}
-    .title {{
-      font: 600 18px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      fill: #24292e;
-    }}
-    .subtitle {{
-      font: 400 12px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      fill: #586069;
-    }}
-    .label {{
-      font: 400 13px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      fill: #24292e;
-    }}
-    .value {{
-      font: 600 13px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      fill: #0366d6;
-    }}
-    .small {{
-      font: 400 11px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      fill: #6a737d;
-    }}
+    .title {{ font: 600 20px system-ui; fill: #24292e; }}
+    .subtitle {{ font: 400 13px system-ui; fill: #586069; }}
+    .label {{ font: 400 14px system-ui; fill: #24292e; }}
+    .value {{ font: 600 14px system-ui; fill: #0366d6; }}
+    .small {{ font: 400 12px system-ui; fill: #6a737d; }}
+    .card {{ fill: white; stroke: #e4e2e2; stroke-width: 1; rx: 8; }}
   </style>
 
-  <!-- transparent background -->
-  <rect x="0" y="0" width="495" height="180" fill="none" />
+  <rect width="520" height="240" fill="none"/>
+  <rect x="0.5" y="0.5" width="519" height="239" class="card"/>
 
-  <!-- card -->
-  <rect x="0.5" y="0.5" width="494" height="179" class="card" />
-
-  <!-- header -->
-  <g transform="translate(24, 32)">
+  <!-- Title -->
+  <g transform="translate(26, 40)">
     <text class="title">{username}'s GitHub Stats ({year})</text>
-    <text class="subtitle" y="18">Public events · approx. last 300 events from the GitHub API</text>
+    <text class="subtitle" y="22">Public events · approx. last 300 events from GitHub API</text>
   </g>
 
-  <!-- stats list -->
-  <g transform="translate(32, 78)">
-    <text class="label" x="0" y="0">⭐  Total events (this year):</text>
-    <text class="value" x="260" y="0">{fmt(total)}</text>
+  <!-- Stats List -->
+  <g transform="translate(26, 90)">
+    <text class="label" x="0" y="0">⭐ Total events (this year):</text>
+    <text class="value" x="250" y="0">{fmt(total)}</text>
 
-    <text class="label" x="0" y="22">📝 Commits (Push events):</text>
-    <text class="value" x="260" y="22">{fmt(commits)}</text>
+    <text class="label" x="0" y="28">📝 Commits:</text>
+    <text class="value" x="250" y="28">{fmt(commits)}</text>
 
-    <text class="label" x="0" y="44">📦 Push events:</text>
-    <text class="value" x="260" y="44">{fmt(pushes)}</text>
+    <text class="label" x="0" y="56">📦 Push events:</text>
+    <text class="value" x="250" y="56">{fmt(pushes)}</text>
 
-    <text class="label" x="0" y="66">🔀 PRs opened:</text>
-    <text class="value" x="260" y="66">{fmt(prs)}</text>
+    <text class="label" x="0" y="84">🔀 PRs opened:</text>
+    <text class="value" x="250" y="84">{fmt(prs)}</text>
 
-    <text class="label" x="0" y="88">❗ Issues opened:</text>
-    <text class="value" x="260" y="88">{fmt(issues)}</text>
+    <text class="label" x="0" y="112">❗ Issues opened:</text>
+    <text class="value" x="250" y="112">{fmt(issues)}</text>
 
-    <text class="label" x="0" y="110">📁 Repos created:</text>
-    <text class="value" x="260" y="110">{fmt(repos)}</text>
+    <text class="label" x="0" y="140">📁 Repos created:</text>
+    <text class="value" x="250" y="140">{fmt(repos)}</text>
   </g>
 
-  <!-- activity circle -->
-  <g transform="translate(380, 95)">
-    <circle cx="0" cy="0" r="{radius}" fill="none" stroke="#e1e4e8" stroke-width="8" />
-    <circle
-      cx="0"
-      cy="0"
-      r="{radius}"
-      fill="none"
-      stroke="#58a6ff"
-      stroke-width="8"
-      stroke-linecap="round"
-      stroke-dasharray="{circumference:.2f}"
-      stroke-dashoffset="{progress:.2f}"
-      transform="rotate(-90)"
-    />
-    <text text-anchor="middle" class="value" y="5">{int(percent*100)}%</text>
-    <text text-anchor="middle" class="small" y="24">activity</text>
+  <!-- Activity circle -->
+  <g transform="translate(400, 130)">
+    <circle cx="0" cy="0" r="{radius}" fill="none" stroke="#e1e4e8" stroke-width="8"/>
+    <circle cx="0" cy="0" r="{radius}" fill="none"
+            stroke="#58a6ff" stroke-width="8" stroke-linecap="round"
+            stroke-dasharray="{circ:.2f}" stroke-dashoffset="{progress:.2f}"
+            transform="rotate(-90)"/>
+    <text class="value" text-anchor="middle" y="5">{int(percent*100)}%</text>
+    <text class="small" text-anchor="middle" y="25">activity</text>
   </g>
 
-  <!-- footer -->
-  <g transform="translate(24, 164)">
-    <text class="small">Generated automatically with GitHub Actions · Year {year}</text>
+  <!-- Footer -->
+  <g transform="translate(26, 220)">
+    <text class="small">Generated automatically using GitHub Actions · Year {year}</text>
   </g>
+
 </svg>
 """
-    with open(output_path, "w", encoding="utf-8") as f:
+
+    with open(out, "w", encoding="utf-8") as f:
         f.write(svg)
 
 
-def main() -> None:
+def main():
     if not TOKEN:
-        print(
-            "⚠️ WARNING: GH_TOKEN environment variable is not set. "
-            "It may still work locally, but in GitHub Actions you MUST configure the GH_TOKEN secret.",
-            file=sys.stderr,
-        )
+        print("WARNING: GH_TOKEN not set", file=sys.stderr)
 
-    print(f"➡️ Fetching events for {USERNAME} in {CURRENT_YEAR}...")
     events = fetch_events(USERNAME, CURRENT_YEAR)
-    print(f"✅ Events found for {CURRENT_YEAR}: {len(events)}")
-
     stats = compute_stats(events)
-    print(f"📊 Stats: {stats}")
-
     generate_svg(stats, USERNAME, CURRENT_YEAR)
-    print("🖼️ File 'stats.svg' generated successfully.")
 
 
 if __name__ == "__main__":

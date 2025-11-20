@@ -1,93 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="495" height="180" viewBox="0 0 495 180" role="img" aria-labelledby="title desc">
-  <title id="title">BrunoDrezza's GitHub Stats 2025</title>
-  <desc id="desc">
-    GitHub public events statistics for 2025.
-  </desc>
+
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="240" viewBox="0 0 520 240">
 
   <style>
-    .card {
-      fill: #ffffff;
-      stroke: #e4e2e2;
-      stroke-width: 1;
-      rx: 6;
-      ry: 6;
-    }
-    .title {
-      font: 600 18px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      fill: #24292e;
-    }
-    .subtitle {
-      font: 400 12px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      fill: #586069;
-    }
-    .label {
-      font: 400 13px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      fill: #24292e;
-    }
-    .value {
-      font: 600 13px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      fill: #0366d6;
-    }
-    .small {
-      font: 400 11px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      fill: #6a737d;
-    }
+    .title { font: 600 20px system-ui; fill: #24292e; }
+    .subtitle { font: 400 13px system-ui; fill: #586069; }
+    .label { font: 400 14px system-ui; fill: #24292e; }
+    .value { font: 600 14px system-ui; fill: #0366d6; }
+    .small { font: 400 12px system-ui; fill: #6a737d; }
+    .card { fill: white; stroke: #e4e2e2; stroke-width: 1; rx: 8; }
   </style>
 
-  <!-- transparent background -->
-  <rect x="0" y="0" width="495" height="180" fill="none" />
+  <rect width="520" height="240" fill="none"/>
+  <rect x="0.5" y="0.5" width="519" height="239" class="card"/>
 
-  <!-- card -->
-  <rect x="0.5" y="0.5" width="494" height="179" class="card" />
-
-  <!-- header -->
-  <g transform="translate(24, 32)">
+  <!-- Title -->
+  <g transform="translate(26, 40)">
     <text class="title">BrunoDrezza's GitHub Stats (2025)</text>
-    <text class="subtitle" y="18">Public events · approx. last 300 events from the GitHub API</text>
+    <text class="subtitle" y="22">Public events · approx. last 300 events from GitHub API</text>
   </g>
 
-  <!-- stats list -->
-  <g transform="translate(32, 78)">
-    <text class="label" x="0" y="0">⭐  Total events (this year):</text>
-    <text class="value" x="260" y="0">19</text>
+  <!-- Stats List -->
+  <g transform="translate(26, 90)">
+    <text class="label" x="0" y="0">⭐ Total events (this year):</text>
+    <text class="value" x="250" y="0">20</text>
 
-    <text class="label" x="0" y="22">📝 Commits (Push events):</text>
-    <text class="value" x="260" y="22">0</text>
+    <text class="label" x="0" y="28">📝 Commits:</text>
+    <text class="value" x="250" y="28">0</text>
 
-    <text class="label" x="0" y="44">📦 Push events:</text>
-    <text class="value" x="260" y="44">16</text>
+    <text class="label" x="0" y="56">📦 Push events:</text>
+    <text class="value" x="250" y="56">17</text>
 
-    <text class="label" x="0" y="66">🔀 PRs opened:</text>
-    <text class="value" x="260" y="66">0</text>
+    <text class="label" x="0" y="84">🔀 PRs opened:</text>
+    <text class="value" x="250" y="84">0</text>
 
-    <text class="label" x="0" y="88">❗ Issues opened:</text>
-    <text class="value" x="260" y="88">0</text>
+    <text class="label" x="0" y="112">❗ Issues opened:</text>
+    <text class="value" x="250" y="112">0</text>
 
-    <text class="label" x="0" y="110">📁 Repos created:</text>
-    <text class="value" x="260" y="110">0</text>
+    <text class="label" x="0" y="140">📁 Repos created:</text>
+    <text class="value" x="250" y="140">0</text>
   </g>
 
-  <!-- activity circle -->
-  <g transform="translate(380, 95)">
-    <circle cx="0" cy="0" r="38" fill="none" stroke="#e1e4e8" stroke-width="8" />
-    <circle
-      cx="0"
-      cy="0"
-      r="38"
-      fill="none"
-      stroke="#58a6ff"
-      stroke-width="8"
-      stroke-linecap="round"
-      stroke-dasharray="238.76"
-      stroke-dashoffset="193.40"
-      transform="rotate(-90)"
-    />
-    <text text-anchor="middle" class="value" y="5">19%</text>
-    <text text-anchor="middle" class="small" y="24">activity</text>
+  <!-- Activity circle -->
+  <g transform="translate(400, 130)">
+    <circle cx="0" cy="0" r="38" fill="none" stroke="#e1e4e8" stroke-width="8"/>
+    <circle cx="0" cy="0" r="38" fill="none"
+            stroke="#58a6ff" stroke-width="8" stroke-linecap="round"
+            stroke-dasharray="238.76" stroke-dashoffset="191.01"
+            transform="rotate(-90)"/>
+    <text class="value" text-anchor="middle" y="5">20%</text>
+    <text class="small" text-anchor="middle" y="25">activity</text>
   </g>
 
-  <!-- footer -->
-  <g transform="translate(24, 164)">
-    <text class="small">Generated automatically with GitHub Actions · Year 2025</text>
+  <!-- Footer -->
+  <g transform="translate(26, 220)">
+    <text class="small">Generated automatically using GitHub Actions · Year 2025</text>
   </g>
+
 </svg>
