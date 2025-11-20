@@ -109,7 +109,8 @@ def compute_stats(events: List[Dict[str, Any]]) -> Dict[str, int]:
 
 def generate_svg(stats: Dict[str, int], username: str, year: int, output_path: str = "stats.svg") -> None:
     """
-    Gera um cartão SVG simples com as estatísticas.
+    Gera um cartão SVG estiloso com as estatísticas.
+    Visual mais parecido com o tema dark do GitHub.
     """
     total = stats["total_events"]
     commits = stats["commits"]
@@ -118,55 +119,105 @@ def generate_svg(stats: Dict[str, int], username: str, year: int, output_path: s
     issues = stats["issues_abertas"]
     repos = stats["repos_criados"]
 
-    svg = f"""<svg width="480" height="190" viewBox="0 0 480 190" xmlns="http://www.w3.org/2000/svg">
+    def fmt(n: int) -> str:
+        # formata com separador de milhar mais bonitinho (ex: 1 234)
+        return f"{n:,}".replace(",", ".")
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="495" height="195" viewBox="0 0 495 195" role="img" aria-labelledby="title desc">
+  <title id="title">GitHub stats {year} de {username}</title>
+  <desc id="desc">
+    Estatísticas de eventos públicos do GitHub: total de eventos, commits, push events,
+    pull requests abertos, issues abertas e repositórios criados em {year}.
+  </desc>
+
   <style>
+    .bg {{
+      fill: #0d1117;
+    }}
+    .card {{
+      fill: #161b22;
+      stroke: #30363d;
+      stroke-width: 1;
+    }}
     .title {{
-      font: 700 20px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font: 600 19px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      fill: #f0f6fc;
     }}
     .subtitle {{
-      font: 400 12px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font: 400 12px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      fill: #8b949e;
     }}
     .label {{
-      font: 500 13px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font: 400 13px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      fill: #c9d1d9;
     }}
     .value {{
-      font: 600 13px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font: 600 13px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      fill: #f0f6fc;
+    }}
+    .accent {{
+      fill: #58a6ff;
+    }}
+    .small {{
+      font: 400 11px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      fill: #6e7681;
     }}
   </style>
 
-  <defs>
-    <linearGradient id="cardGradient" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0%" stop-color="#f5f5f5" />
-      <stop offset="100%" stop-color="#e0e0e0" />
-    </linearGradient>
-  </defs>
+  <!-- fundo geral -->
+  <rect class="bg" x="0" y="0" width="495" height="195" rx="16" />
 
-  <rect x="0.5" y="0.5" rx="12" ry="12" width="479" height="189" fill="url(#cardGradient)" stroke="#d0d0d0"/>
+  <!-- card principal -->
+  <rect class="card" x="8" y="8" width="479" height="179" rx="12" />
 
-  <text x="24" y="40" class="title">GitHub Stats {year}</text>
-  <text x="24" y="60" class="subtitle">@{username} • apenas eventos públicos</text>
+  <!-- linha decorativa -->
+  <rect x="8" y="8" width="479" height="3" fill="#238636" />
 
-  <g transform="translate(24, 85)">
-    <text class="label" x="0" y="0">Eventos no ano:</text>
-    <text class="value" x="160" y="0">{total}</text>
-
-    <text class="label" x="0" y="22">Commits (PushEvent):</text>
-    <text class="value" x="160" y="22">{commits}</text>
-
-    <text class="label" x="0" y="44">Push events:</text>
-    <text class="value" x="160" y="44">{pushes}</text>
-
-    <text class="label" x="0" y="66">PRs abertos:</text>
-    <text class="value" x="160" y="66">{prs}</text>
-
-    <text class="label" x="0" y="88">Issues abertas:</text>
-    <text class="value" x="160" y="88">{issues}</text>
-
-    <text class="label" x="0" y="110">Repositórios criados:</text>
-    <text class="value" x="160" y="110">{repos}</text>
+  <!-- título -->
+  <g transform="translate(26, 40)">
+    <text class="title">GitHub Stats {year}</text>
+    <text class="subtitle" y="18">@{username} · eventos públicos</text>
   </g>
 
-  <text x="24" y="176" class="subtitle">Dados baseados na API pública de eventos do GitHub (últimos ~300 eventos).</text>
+  <!-- stats -->
+  <g transform="translate(26, 88)">
+    <!-- linha 1 -->
+    <circle class="accent" cx="6" cy="-4" r="3" />
+    <text class="label" x="18" y="0">Eventos no ano</text>
+    <text class="value" x="230" y="0">{fmt(total)}</text>
+
+    <!-- linha 2 -->
+    <circle class="accent" cx="6" cy="20" r="3" />
+    <text class="label" x="18" y="24">Commits (PushEvent)</text>
+    <text class="value" x="230" y="24">{fmt(commits)}</text>
+
+    <!-- linha 3 -->
+    <circle class="accent" cx="6" cy="44" r="3" />
+    <text class="label" x="18" y="48">Push events</text>
+    <text class="value" x="230" y="48">{fmt(pushes)}</text>
+
+    <!-- linha 4 -->
+    <circle class="accent" cx="6" cy="68" r="3" />
+    <text class="label" x="18" y="72">PRs abertos</text>
+    <text class="value" x="230" y="72">{fmt(prs)}</text>
+
+    <!-- linha 5 -->
+    <circle class="accent" cx="6" cy="92" r="3" />
+    <text class="label" x="18" y="96">Issues abertas</text>
+    <text class="value" x="230" y="96">{fmt(issues)}</text>
+
+    <!-- linha 6 -->
+    <circle class="accent" cx="6" cy="116" r="3" />
+    <text class="label" x="18" y="120">Repositórios criados</text>
+    <text class="value" x="230" y="120">{fmt(repos)}</text>
+  </g>
+
+  <!-- rodapé -->
+  <g transform="translate(26, 174)">
+    <text class="small">
+      Dados baseados na API pública de eventos do GitHub (últimos ~300 eventos).
+    </text>
+  </g>
 </svg>
 """
     with open(output_path, "w", encoding="utf-8") as f:
