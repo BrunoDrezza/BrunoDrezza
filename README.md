@@ -121,4 +121,4 @@ Each course is being organized into its own GitHub repository, with **labs** and
 
 
 ### 💫 GitHub Stats (Current Year)
-![GitHub Stats](https://github-contributions-api.jogruber.de/v4/BrunoDrezza?y=current&theme=github)
+![GitHub Stats](https://github-readme-stats.vercel.app/api?username=BrunoDrezza&show_icons=true&theme=default)
