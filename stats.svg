@@ -22,13 +22,13 @@
   <!-- Stats List -->
   <g transform="translate(26, 90)">
     <text class="label" x="0" y="0">⭐ Total events (this year):</text>
-    <text class="value" x="250" y="0">24</text>
+    <text class="value" x="250" y="0">23</text>
 
     <text class="label" x="0" y="28">📝 Commits:</text>
     <text class="value" x="250" y="28">0</text>
 
     <text class="label" x="0" y="56">📦 Push events:</text>
-    <text class="value" x="250" y="56">19</text>
+    <text class="value" x="250" y="56">18</text>
 
     <text class="label" x="0" y="84">🔀 PRs opened:</text>
     <text class="value" x="250" y="84">0</text>
@@ -45,9 +45,9 @@
     <circle cx="0" cy="0" r="38" fill="none" stroke="#e1e4e8" stroke-width="8"/>
     <circle cx="0" cy="0" r="38" fill="none"
             stroke="#58a6ff" stroke-width="8" stroke-linecap="round"
-            stroke-dasharray="238.76" stroke-dashoffset="181.46"
+            stroke-dasharray="238.76" stroke-dashoffset="183.85"
             transform="rotate(-90)"/>
-    <text class="value" text-anchor="middle" y="5">24%</text>
+    <text class="value" text-anchor="middle" y="5">23%</text>
     <text class="small" text-anchor="middle" y="25">activity</text>
   </g>
 
