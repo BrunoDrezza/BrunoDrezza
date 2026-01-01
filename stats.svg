@@ -15,7 +15,7 @@
 
   <!-- Title -->
   <g transform="translate(26, 40)">
-    <text class="title">BrunoDrezza's GitHub Stats (2025)</text>
+    <text class="title">BrunoDrezza's GitHub Stats (2026)</text>
     <text class="subtitle" y="22">Public events · approx. last 300 events from GitHub API</text>
   </g>
 
@@ -53,7 +53,7 @@
 
   <!-- Footer -->
   <g transform="translate(26, 220)">
-    <text class="small">Generated automatically using GitHub Actions · Year 2025</text>
+    <text class="small">Generated automatically using GitHub Actions · Year 2026</text>
   </g>
 
 </svg>
